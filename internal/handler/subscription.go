@@ -24,22 +24,32 @@ func NewHandler(s *service.SubscriptionService, logger *logrus.Logger) *Handler 
 // @Tags subscriptions
 // @Accept json
 // @Produce json
-// @Param subscription body model.Subscription true "Subscription data"
+// @Param subscription body model.CreateSubscriptionRequest true "Subscription data"
 // @Success 201 {object} model.Subscription
 // @Failure 400 {object} map[string]interface{}
 // @Router /subscriptions [post]
 func (h *Handler) CreateSubscription(c *gin.Context) {
-	var sub model.Subscription
-	if err := c.ShouldBindJSON(&sub); err != nil {
+	var req model.CreateSubscriptionRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
 		h.logger.WithError(err).Error("Invalid input")
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := h.service.Create(&sub); err != nil {
+
+	sub := &model.Subscription{
+		ServiceName: req.ServiceName,
+		CostRub:     req.CostRub,
+		UserID:      req.UserID,
+		StartDate:   req.StartDate,
+		EndDate:     req.EndDate,
+	}
+
+	if err := h.service.Create(sub); err != nil {
 		h.logger.WithError(err).Error("Failed to create subscription")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal error"})
 		return
 	}
+
 	c.JSON(http.StatusCreated, sub)
 }
 
@@ -89,7 +99,7 @@ func (h *Handler) ListSubscriptions(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Subscription ID"
-// @Param subscription body model.Subscription true "Updated subscription data"
+// @Param subscription body model.UpdateSubscriptionRequest true "Updated subscription data"
 // @Success 200 {object} model.Subscription
 // @Failure 400 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
@@ -100,17 +110,30 @@ func (h *Handler) UpdateSubscription(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid UUID"})
 		return
 	}
-	var sub model.Subscription
-	if err := c.ShouldBindJSON(&sub); err != nil {
+
+	var req model.UpdateSubscriptionRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
 		h.logger.WithError(err).Error("Invalid update input")
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := h.service.Update(id, &sub); err != nil {
+
+	// ID берётся из URL, а не из тела запроса!
+	sub := &model.Subscription{
+		ID:          id,
+		ServiceName: req.ServiceName,
+		CostRub:     req.CostRub,
+		UserID:      req.UserID,
+		StartDate:   req.StartDate,
+		EndDate:     req.EndDate,
+	}
+
+	if err := h.service.Update(id, sub); err != nil {
 		h.logger.WithError(err).Error("Update failed")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "update failed"})
 		return
 	}
+
 	c.JSON(http.StatusOK, sub)
 }
 

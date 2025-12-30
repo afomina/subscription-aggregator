@@ -56,7 +56,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Subscription"
+                            "$ref": "#/definitions/model.CreateSubscriptionRequest"
                         }
                     }
                 ],
@@ -210,7 +210,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Subscription"
+                            "$ref": "#/definitions/model.UpdateSubscriptionRequest"
                         }
                     }
                 ],
@@ -268,7 +268,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "model.Subscription": {
+        "model.CreateSubscriptionRequest": {
             "type": "object",
             "required": [
                 "cost_rub",
@@ -283,7 +283,53 @@ const docTemplate = `{
                 "end_date": {
                     "type": "string"
                 },
+                "service_name": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Subscription": {
+            "type": "object",
+            "properties": {
+                "cost_rub": {
+                    "type": "integer"
+                },
+                "end_date": {
+                    "type": "string"
+                },
                 "id": {
+                    "type": "string"
+                },
+                "service_name": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UpdateSubscriptionRequest": {
+            "type": "object",
+            "required": [
+                "cost_rub",
+                "service_name",
+                "start_date",
+                "user_id"
+            ],
+            "properties": {
+                "cost_rub": {
+                    "type": "integer"
+                },
+                "end_date": {
                     "type": "string"
                 },
                 "service_name": {
